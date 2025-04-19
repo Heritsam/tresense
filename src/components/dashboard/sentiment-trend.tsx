@@ -40,6 +40,8 @@ const data = [
 export function SentimentTrend() {
   const [view, setView] = useState("daily");
 
+  console.log(view);
+
   return (
     <Card className="col-span-1 overflow-hidden">
       <CardHeader className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 pb-2">
