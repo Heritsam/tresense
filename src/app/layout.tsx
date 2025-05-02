@@ -1,8 +1,11 @@
-import { ThemeProvider } from "@/components/theme-provider";
-import type { Metadata } from "next";
-import { JetBrains_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 
+import { JetBrains_Mono, Outfit } from "next/font/google";
+
+import Provider from "@/components/provider";
+import { ThemeProvider } from "@/components/theme-provider";
+
+import type { Metadata } from "next";
 const outfitSans = Outfit({
   variable: "--font-outfit-sans",
   subsets: ["latin"],
@@ -30,13 +33,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body
-        className={`${outfitSans.variable} ${jetbrainsMono.variable} antialiased`}
-      >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
-      </body>
+      <Provider>
+        <body
+          className={`${outfitSans.variable} ${jetbrainsMono.variable} antialiased`}
+        >
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </body>
+      </Provider>
     </html>
   );
 }
