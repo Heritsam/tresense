@@ -1,7 +1,10 @@
 "use client";
 
+import { Check, Edit, ExternalLink, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
-import { Check, Edit, MoreHorizontal } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,17 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -28,7 +29,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 
 interface Comment {
   id: string;
@@ -153,6 +153,7 @@ export function CommentModeration() {
                     aria-label="Select all"
                   />
                 </TableHead>
+                <TableHead>Executed at</TableHead>
                 <TableHead>Comment</TableHead>
                 <TableHead className="hidden sm:table-cell w-[100px]">
                   Sentiment
@@ -173,6 +174,15 @@ export function CommentModeration() {
                       onCheckedChange={() => toggleSelectComment(comment.id)}
                       aria-label={`Select comment ${comment.id}`}
                     />
+                  </TableCell>
+                  <TableCell>
+                    {new Date().toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </TableCell>
                   <TableCell
                     className="font-medium max-w-[150px] sm:max-w-[200px] truncate"
@@ -226,44 +236,39 @@ export function CommentModeration() {
                       {comment.status}
                     </Badge>
                   </TableCell>
+
                   <TableCell>
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 sm:h-8 sm:w-8"
-                      >
-                        <Check className="h-3 w-3 sm:h-4 sm:w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 sm:h-8 sm:w-8"
-                      >
-                        <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 sm:h-8 sm:w-8"
-                          >
-                            <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>Reassign</DropdownMenuItem>
-                          <DropdownMenuItem>View History</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 sm:h-8 sm:w-8"
+                        >
+                          <MoreHorizontal className="size-3 sm:size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <ExternalLink className="size-3 sm:size-4" />
+                          Link to post
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                          <Check className="size-3 sm:size-4" />
+                          Approve
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="size-3 sm:size-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-destructive">
+                          <Trash className="size-3 sm:size-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
