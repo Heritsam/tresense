@@ -28,7 +28,7 @@ export function DashboardHeader() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { name: "Dashboard", href: "/" },
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Settings", href: "/settings" },
     { name: "Logs", href: "/logs" },
     { name: "Templates", href: "/templates" },
