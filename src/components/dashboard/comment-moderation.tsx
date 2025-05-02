@@ -29,6 +29,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 interface Comment {
   id: string;
@@ -91,6 +100,8 @@ export function CommentModeration() {
   const [selectedComments, setSelectedComments] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [selectedPost, setSelectedPost] = useState<string | null>(null);
+
   const filteredComments = comments.filter(
     (comment) =>
       comment.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -132,9 +143,24 @@ export function CommentModeration() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button variant="outline" size="sm" className="whitespace-nowrap">
+            {/* <Button variant="outline" size="sm" className="whitespace-nowrap">
               Bulk Actions
-            </Button>
+            </Button> */}
+            <Select onValueChange={setSelectedPost}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a post" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Select a post</SelectLabel>
+                  <SelectItem value="apple">Apple</SelectItem>
+                  <SelectItem value="banana">Banana</SelectItem>
+                  <SelectItem value="blueberry">Blueberry</SelectItem>
+                  <SelectItem value="grapes">Grapes</SelectItem>
+                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </CardHeader>
@@ -166,29 +192,46 @@ export function CommentModeration() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredComments.map((comment) => (
-                <TableRow key={comment.id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedComments.includes(comment.id)}
-                      onCheckedChange={() => toggleSelectComment(comment.id)}
-                      aria-label={`Select comment ${comment.id}`}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {new Date().toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </TableCell>
-                  <TableCell
-                    className="font-medium max-w-[150px] sm:max-w-[200px] truncate"
-                    title={comment.text}
-                  >
-                    <div className="flex items-center gap-2 sm:hidden">
+              {selectedPost &&
+                filteredComments.map((comment) => (
+                  <TableRow key={comment.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedComments.includes(comment.id)}
+                        onCheckedChange={() => toggleSelectComment(comment.id)}
+                        aria-label={`Select comment ${comment.id}`}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {new Date().toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </TableCell>
+                    <TableCell
+                      className="font-medium max-w-[150px] sm:max-w-[200px] truncate"
+                      title={comment.text}
+                    >
+                      <div className="flex items-center gap-2 sm:hidden">
+                        <Badge
+                          variant={
+                            comment.sentiment === "Positive"
+                              ? "success"
+                              : comment.sentiment === "Neutral"
+                              ? "secondary"
+                              : "destructive"
+                          }
+                          className="shrink-0"
+                        >
+                          {comment.sentiment[0]}
+                        </Badge>
+                      </div>
+                      {comment.text}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge
                         variant={
                           comment.sentiment === "Positive"
@@ -197,81 +240,80 @@ export function CommentModeration() {
                             ? "secondary"
                             : "destructive"
                         }
-                        className="shrink-0"
                       >
-                        {comment.sentiment[0]}
+                        {comment.sentiment}
                       </Badge>
-                    </div>
-                    {comment.text}
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <Badge
-                      variant={
-                        comment.sentiment === "Positive"
-                          ? "success"
-                          : comment.sentiment === "Neutral"
-                          ? "secondary"
-                          : "destructive"
-                      }
+                    </TableCell>
+                    <TableCell
+                      className="hidden lg:table-cell max-w-[200px] truncate"
+                      title={comment.suggestedReply}
                     >
-                      {comment.sentiment}
-                    </Badge>
-                  </TableCell>
-                  <TableCell
-                    className="hidden lg:table-cell max-w-[200px] truncate"
-                    title={comment.suggestedReply}
-                  >
-                    {comment.suggestedReply}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        comment.status === "Approved"
-                          ? "default"
-                          : comment.status === "Pending"
-                          ? "outline"
-                          : "destructive"
-                      }
-                    >
-                      {comment.status}
-                    </Badge>
-                  </TableCell>
+                      {comment.suggestedReply}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          comment.status === "Approved"
+                            ? "default"
+                            : comment.status === "Pending"
+                            ? "outline"
+                            : "destructive"
+                        }
+                      >
+                        {comment.status}
+                      </Badge>
+                    </TableCell>
 
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 sm:h-8 sm:w-8"
-                        >
-                          <MoreHorizontal className="size-3 sm:size-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <ExternalLink className="size-3 sm:size-4" />
-                          Link to post
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Check className="size-3 sm:size-4" />
-                          Approve
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="size-3 sm:size-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash className="size-3 sm:size-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
+                          >
+                            <MoreHorizontal className="size-3 sm:size-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <ExternalLink className="size-3 sm:size-4" />
+                            Link to post
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            <Check className="size-3 sm:size-4" />
+                            Approve
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="size-3 sm:size-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive">
+                            <Trash className="size-3 sm:size-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              {!selectedPost && (
+                <TableRow>
+                  <TableCell colSpan={13} className="h-24 text-center">
+                    Please select a post to view comments.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
+
+              {filteredComments.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={13} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
