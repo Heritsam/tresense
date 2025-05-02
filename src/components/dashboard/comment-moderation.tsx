@@ -36,7 +36,7 @@ interface Comment {
   sentiment: "Positive" | "Neutral" | "Negative";
   confidence: number;
   suggestedReply: string;
-  status: "Approved" | "Pending" | "Rejected";
+  status: "Automated" | "Approved" | "Pending" | "Rejected";
 }
 
 const comments: Comment[] = [
@@ -157,9 +157,6 @@ export function CommentModeration() {
                 <TableHead className="hidden sm:table-cell w-[100px]">
                   Sentiment
                 </TableHead>
-                <TableHead className="hidden md:table-cell w-[100px]">
-                  Confidence
-                </TableHead>
                 <TableHead className="hidden lg:table-cell">
                   Suggested Reply
                 </TableHead>
@@ -185,7 +182,7 @@ export function CommentModeration() {
                       <Badge
                         variant={
                           comment.sentiment === "Positive"
-                            ? "default"
+                            ? "success"
                             : comment.sentiment === "Neutral"
                             ? "secondary"
                             : "destructive"
@@ -201,7 +198,7 @@ export function CommentModeration() {
                     <Badge
                       variant={
                         comment.sentiment === "Positive"
-                          ? "default"
+                          ? "success"
                           : comment.sentiment === "Neutral"
                           ? "secondary"
                           : "destructive"
@@ -209,9 +206,6 @@ export function CommentModeration() {
                     >
                       {comment.sentiment}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {(comment.confidence * 100).toFixed(0)}%
                   </TableCell>
                   <TableCell
                     className="hidden lg:table-cell max-w-[200px] truncate"

@@ -1,4 +1,4 @@
-import { CheckCircle, Clock, MessageSquare, XCircle } from "lucide-react";
+import { CheckCircle, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -63,20 +63,6 @@ export function KpiCards() {
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-xs sm:text-sm font-medium">
-            Failed Automations
-          </CardTitle>
-          <XCircle className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-xl sm:text-2xl font-bold">23</div>
-          <p className="text-xs text-muted-foreground">
-            0.8% of total comments
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium">
             Automation Status
           </CardTitle>
           <div className="flex items-center space-x-2">
@@ -91,18 +77,6 @@ export function KpiCards() {
             Active
           </div>
           <p className="text-xs text-muted-foreground">Running for 14 days</p>
-        </CardContent>
-      </Card>
-      <Card className="overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xs sm:text-sm font-medium">
-            Time Saved
-          </CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-xl sm:text-2xl font-bold">42 hours</div>
-          <p className="text-xs text-muted-foreground">This month</p>
         </CardContent>
       </Card>
     </div>

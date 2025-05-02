@@ -17,13 +17,18 @@ export function useCurrentUserName() {
       try {
         const supabase = createClient();
 
+        // Get the current session
         const { data: sessionData, error: sessionError } =
           await supabase.auth.getSession();
+
         if (sessionError) throw sessionError;
+
+        console.log("JWT Token", sessionData.session?.access_token);
 
         const userId = sessionData?.session?.user?.id;
         if (!userId) throw new Error("User ID not found");
 
+        // Fetch the profile name from the database
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("full_name")
