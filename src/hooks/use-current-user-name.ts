@@ -23,8 +23,6 @@ export function useCurrentUserName() {
 
         if (sessionError) throw sessionError;
 
-        console.log(sessionData.session?.access_token);
-
         const userId = sessionData?.session?.user?.id;
         if (!userId) throw new Error("User ID not found");
 
