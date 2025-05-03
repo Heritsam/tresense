@@ -1,20 +1,28 @@
 export type Comment = {
   author: string;
   message: string;
-  likeCount: number;
+  like_count: number;
   publishedAt: string;
   updatedAt: string;
 };
 
 export type Video = {
-  videoId: string;
+  id: string;
   title: string;
   description: string;
-  publishedAt: string;
-  channelTitle: string;
+  published_at: string;
+  channel_title: string;
   thumbnail: string;
-  viewCount: number;
-  likeCount: number;
-  dislikeCount: number;
-  commentCount: number;
+  view_count: number;
+  like_count: number;
+  dislike_count: number;
+  comment_count: number;
+};
+export type AutoComment = {
+  id: string;
+  thread_id: string;
+  comment: string;
+  sentiment: string;
+  status: string;
+  suggested_reply: string;
 };

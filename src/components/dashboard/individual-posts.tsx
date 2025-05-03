@@ -20,6 +20,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Video } from "@/lib/models";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 export function IndividualPosts() {
   const formatNumbers = (numbers: number): string => {
@@ -78,7 +79,7 @@ export function IndividualPosts() {
             {status === "success" &&
               posts &&
               posts.map((post, index) => (
-                <Card key={post.videoId + "-" + index} className="p-4">
+                <Card key={post.id + "-" + index} className="p-4">
                   <div className="flex items-center gap-4">
                     <Image
                       src={post.thumbnail}
@@ -95,15 +96,15 @@ export function IndividualPosts() {
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Heart className="h-3.5 w-3.5" />
-                          <span>{formatNumbers(post.likeCount)}</span>
+                          <span>{formatNumbers(post.like_count)}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <MessageCircle className="h-3.5 w-3.5" />
-                          <span>{formatNumbers(post.commentCount)}</span>
+                          <span>{formatNumbers(post.comment_count)}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Eye className="h-3.5 w-3.5" />
-                          <span>{formatNumbers(post.viewCount)}</span>
+                          <span>{formatNumbers(post.view_count)}</span>
                         </div>
                       </div>
                     </div>
@@ -120,7 +121,11 @@ export function IndividualPosts() {
                         <DropdownMenuItem>
                           Run Sentiment Analysis
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Run Topic Analysis</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="https://storage.googleapis.com/tresense_bucket/interactive_plot.html">
+                            Run Topic Analysis
+                          </Link>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

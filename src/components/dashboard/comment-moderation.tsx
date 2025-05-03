@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Edit, ExternalLink, MoreHorizontal, Trash } from "lucide-react";
+import { Check, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -44,85 +44,88 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Video } from "@/lib/models";
-import { useQuery } from "@tanstack/react-query";
+import { AutoComment, Video } from "@/lib/models";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useCurrentSession } from "@/hooks/use-current-session";
 
-interface Comment {
-  id: string;
-  text: string;
-  sentiment: "Positive" | "Neutral" | "Negative";
-  confidence: number;
-  suggestedReply: string;
-  status: "Automated" | "Approved" | "Pending" | "Rejected";
-}
+// interface Comment {
+//   id: string;
+//   text: string;
+//   sentiment: "Positive" | "Neutral" | "Negative";
+//   confidence: number;
+//   suggested_reply: string;
+//   status: "Automated" | "Approved" | "Pending" | "Rejected";
+// }
 
-const comments: Comment[] = [
-  {
-    id: "1",
-    text: "Your customer service is outstanding! I'll definitely recommend you to my friends.",
-    sentiment: "Positive",
-    confidence: 0.95,
-    suggestedReply:
-      "Thank you for your kind words! We're thrilled to hear about your positive experience. We appreciate your recommendations!",
-    status: "Approved",
-  },
-  {
-    id: "2",
-    text: "I'm having trouble finding the export button. Where is it located?",
-    sentiment: "Neutral",
-    confidence: 0.87,
-    suggestedReply:
-      "The export button is located in the top right corner of the dashboard. If you're still having trouble, please let us know!",
-    status: "Pending",
-  },
-  {
-    id: "3",
-    text: "This product is not working as advertised. I want a refund.",
-    sentiment: "Negative",
-    confidence: 0.92,
-    suggestedReply:
-      "We're sorry to hear about your experience. Please contact our support team at support@example.com, and we'll help resolve this issue immediately.",
-    status: "Pending",
-  },
-  {
-    id: "4",
-    text: "How do I change my subscription plan?",
-    sentiment: "Neutral",
-    confidence: 0.89,
-    suggestedReply:
-      "You can change your subscription plan in your account settings under 'Subscription'. If you need any assistance, our support team is here to help!",
-    status: "Approved",
-  },
-  {
-    id: "5",
-    text: "The new update is amazing! So many useful features.",
-    sentiment: "Positive",
-    confidence: 0.97,
-    suggestedReply:
-      "We're delighted to hear you're enjoying the new update! We worked hard to include features our users would love. Thank you for your feedback!",
-    status: "Pending",
-  },
-];
+// const comments: Comment[] = [
+//   {
+//     id: "1",
+//     text: "Your customer service is outstanding! I'll definitely recommend you to my friends.",
+//     sentiment: "Positive",
+//     confidence: 0.95,
+//     suggested_reply:
+//       "Thank you for your kind words! We're thrilled to hear about your positive experience. We appreciate your recommendations!",
+//     status: "Approved",
+//   },
+//   {
+//     id: "2",
+//     text: "I'm having trouble finding the export button. Where is it located?",
+//     sentiment: "Neutral",
+//     confidence: 0.87,
+//     suggested_reply:
+//       "The export button is located in the top right corner of the dashboard. If you're still having trouble, please let us know!",
+//     status: "Pending",
+//   },
+//   {
+//     id: "3",
+//     text: "This product is not working as advertised. I want a refund.",
+//     sentiment: "Negative",
+//     confidence: 0.92,
+//     suggested_reply:
+//       "We're sorry to hear about your experience. Please contact our support team at support@example.com, and we'll help resolve this issue immediately.",
+//     status: "Pending",
+//   },
+//   {
+//     id: "4",
+//     text: "How do I change my subscription plan?",
+//     sentiment: "Neutral",
+//     confidence: 0.89,
+//     suggested_reply:
+//       "You can change your subscription plan in your account settings under 'Subscription'. If you need any assistance, our support team is here to help!",
+//     status: "Approved",
+//   },
+//   {
+//     id: "5",
+//     text: "The new update is amazing! So many useful features.",
+//     sentiment: "Positive",
+//     confidence: 0.97,
+//     suggested_reply:
+//       "We're delighted to hear you're enjoying the new update! We worked hard to include features our users would love. Thank you for your feedback!",
+//     status: "Pending",
+//   },
+// ];
 
 export function CommentModeration() {
+  const { session } = useCurrentSession();
   const [selectedComments, setSelectedComments] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
+  const [videoId, setVideoId] = useState<string | null>(null);
 
-  const filteredComments = comments.filter(
-    (comment) =>
-      comment.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comment.suggestedReply.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredComments = comments.filter(
+  //   (comment) =>
+  //     comment.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     comment.suggested_reply.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const toggleSelectAll = () => {
-    if (selectedComments.length === filteredComments.length) {
-      setSelectedComments([]);
-    } else {
-      setSelectedComments(filteredComments.map((comment) => comment.id));
-    }
-  };
+  // const toggleSelectAll = () => {
+  //   if (selectedComments.length === filteredComments.length) {
+  //     setSelectedComments([]);
+  //   } else {
+  //     setSelectedComments(filteredComments.map((comment) => comment.id));
+  //   }
+  // };
 
   const toggleSelectComment = (id: string) => {
     if (selectedComments.includes(id)) {
@@ -150,6 +153,58 @@ export function CommentModeration() {
       const data: Video[] = await response.json();
 
       return data;
+    },
+  });
+
+  const { status: commentsStatus, data: comments } = useQuery({
+    queryKey: ["comments", selectedPost],
+    queryFn: async () => {
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_AKMAL_API_URL +
+          `/youtube/autocomment?email=${session?.user.email}&post=${selectedPost}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      return data["comment_table"] as AutoComment[];
+    },
+    enabled: !!selectedPost,
+  });
+
+  const mutation = useMutation({
+    mutationFn: async ({
+      videoId,
+      commentId,
+    }: {
+      videoId: string;
+      commentId: string;
+    }) => {
+      return await fetch(
+        process.env.NEXT_PUBLIC_AKMAL_API_URL +
+          `/youtube/autocomment/push?email=${session?.user.email}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            video_id: videoId,
+            comment_id: commentId,
+          }),
+        }
+      );
     },
   });
 
@@ -194,7 +249,15 @@ export function CommentModeration() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Select onValueChange={setSelectedPost}>
+            <Select
+              onValueChange={(value) => {
+                setSelectedPost(value);
+                setVideoId(
+                  posts.find((post) => post.title === value)!.id
+                );
+                console.log(selectedPost, videoId);
+              }}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select a post" />
               </SelectTrigger>
@@ -203,7 +266,7 @@ export function CommentModeration() {
                   <SelectLabel>Select a post</SelectLabel>
                   {posts.map((post, index) => (
                     <SelectItem
-                      key={post.videoId + "-" + index}
+                      key={post.id + "-" + index}
                       value={post.title}
                     >
                       {post.title}
@@ -222,16 +285,15 @@ export function CommentModeration() {
               <TableRow>
                 <TableHead className="w-[50px]">
                   <Checkbox
-                    checked={
-                      selectedComments.length === filteredComments.length &&
-                      filteredComments.length > 0
-                    }
-                    onCheckedChange={toggleSelectAll}
+                    // checked={
+                    //   selectedComments.length === filteredComments.length &&
+                    //   filteredComments.length > 0
+                    // }
+                    // onCheckedChange={toggleSelectAll}
                     aria-label="Select all"
                   />
                 </TableHead>
                 <TableHead>Executed at</TableHead>
-                <TableHead>Author</TableHead>
                 <TableHead>Comment</TableHead>
                 <TableHead className="hidden sm:table-cell w-[100px]">
                   Sentiment
@@ -245,7 +307,8 @@ export function CommentModeration() {
             </TableHeader>
             <TableBody>
               {selectedPost &&
-                filteredComments.map((comment) => (
+                commentsStatus === "success" &&
+                comments.map((comment) => (
                   <TableRow key={comment.id}>
                     <TableCell>
                       <Checkbox
@@ -263,17 +326,16 @@ export function CommentModeration() {
                         minute: "2-digit",
                       })}
                     </TableCell>
-                    <TableCell>Falif</TableCell>
                     <TableCell
                       className="font-medium max-w-[150px] sm:max-w-[200px] truncate"
-                      title={comment.text}
+                      title={comment.comment}
                     >
                       <div className="flex items-center gap-2 sm:hidden">
                         <Badge
                           variant={
-                            comment.sentiment === "Positive"
+                            comment.sentiment === "positive"
                               ? "success"
-                              : comment.sentiment === "Neutral"
+                              : comment.sentiment === "neutral"
                               ? "secondary"
                               : "destructive"
                           }
@@ -284,7 +346,7 @@ export function CommentModeration() {
                       </div>
                       <HoverCard>
                         <HoverCardTrigger className="cursor-pointer">
-                          {comment.text}
+                          {comment.comment}
                         </HoverCardTrigger>
                         <HoverCardContent className="w-80">
                           <div className="flex justify-between space-x-4">
@@ -293,7 +355,7 @@ export function CommentModeration() {
                               <p className="text-sm text-muted-foreground">
                                 24/10/2023, 10:30 AM
                               </p>
-                              <p className="text-sm">{comment.text}</p>
+                              <p className="text-sm">{comment.comment}</p>
                             </div>
                           </div>
                         </HoverCardContent>
@@ -302,9 +364,9 @@ export function CommentModeration() {
                     <TableCell className="hidden sm:table-cell">
                       <Badge
                         variant={
-                          comment.sentiment === "Positive"
+                          comment.sentiment === "positive"
                             ? "success"
-                            : comment.sentiment === "Neutral"
+                            : comment.sentiment === "neutral"
                             ? "secondary"
                             : "destructive"
                         }
@@ -314,11 +376,11 @@ export function CommentModeration() {
                     </TableCell>
                     <TableCell
                       className="hidden lg:table-cell max-w-[200px] truncate"
-                      title={comment.suggestedReply}
+                      title={comment.suggested_reply}
                     >
                       <HoverCard>
                         <HoverCardTrigger className="cursor-pointer">
-                          {comment.suggestedReply}
+                          {comment.suggested_reply}
                         </HoverCardTrigger>
                         <HoverCardContent className="w-80">
                           <div className="flex justify-between space-x-4">
@@ -327,7 +389,7 @@ export function CommentModeration() {
                                 Suggested reply
                               </h4>
                               <p className="text-sm">
-                                {comment.suggestedReply}
+                                {comment.suggested_reply}
                               </p>
                             </div>
                           </div>
@@ -360,12 +422,14 @@ export function CommentModeration() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <ExternalLink className="size-3 sm:size-4" />
-                            Link to post
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              mutation.mutate({
+                                videoId: videoId!,
+                                commentId: comment.id,
+                              })
+                            }
+                          >
                             <Check className="size-3 sm:size-4" />
                             Approve
                           </DropdownMenuItem>
@@ -391,13 +455,21 @@ export function CommentModeration() {
                 </TableRow>
               )}
 
-              {filteredComments.length === 0 && (
+              {selectedPost && commentsStatus === "pending" && (
+                <TableRow>
+                  <TableCell colSpan={13} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {/* {!comments && comments?.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={13} className="h-24 text-center">
                     No results.
                   </TableCell>
                 </TableRow>
-              )}
+              )} */}
             </TableBody>
           </Table>
         </div>
