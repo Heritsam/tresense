@@ -1,9 +1,9 @@
+import { createClient } from "@/lib/supabase/client";
+import { Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
-
-export function useCurrentUserName() {
-  const [name, setName] = useState<string | null>(null);
+export function useCurrentSession() {
+  const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState<"pending" | "error" | "success">(
     "pending"
   );
@@ -23,19 +23,7 @@ export function useCurrentUserName() {
 
         if (sessionError) throw sessionError;
 
-        const userId = sessionData?.session?.user?.id;
-        if (!userId) throw new Error("User ID not found");
-
-        // Fetch the profile name from the database
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", userId)
-          .single();
-
-        if (profileError) throw profileError;
-
-        setName(profile.full_name);
+        setSession(sessionData?.session);
         setStatus("success");
       } catch (err: Error | unknown) {
         console.error(err);
@@ -49,12 +37,12 @@ export function useCurrentUserName() {
         }
 
         setStatus("error");
-        setName(null);
+        setSession(null);
       }
     };
 
     fetchProfileName();
   }, []);
 
-  return { name, status, error };
+  return { session, status, error };
 }

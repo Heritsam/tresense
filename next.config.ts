@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "i9.ytimg.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

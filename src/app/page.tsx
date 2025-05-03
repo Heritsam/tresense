@@ -7,6 +7,7 @@ import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Pacifico } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 
 const pacifico = Pacifico({
   subsets: ["latin"],
@@ -17,6 +18,8 @@ const pacifico = Pacifico({
 export default async function Home() {
   const supabase = await createClient();
   const user = await supabase.auth.getUser();
+
+  console.log((await cookies()).getAll());
 
   return (
     <div className="min-h-screen overflow-x-hidden dark:bg-gray-950">

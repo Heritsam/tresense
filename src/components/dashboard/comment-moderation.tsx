@@ -29,6 +29,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../ui/hover-card";
 import {
   Select,
   SelectContent,
@@ -38,6 +44,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Video } from "@/lib/models";
+import { useQuery } from "@tanstack/react-query";
 
 interface Comment {
   id: string;
@@ -126,6 +134,49 @@ export function CommentModeration() {
     }
   };
 
+  const {
+    status,
+    data: posts,
+    error,
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: async () => {
+      const response = await fetch("/api/posts");
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data: Video[] = await response.json();
+
+      return data;
+    },
+  });
+
+  if (status === "pending") {
+    return (
+      <Card>
+        <CardContent>
+          <div className="flex items-center justify-center w-full h-full">
+            Loading...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <Card>
+        <CardContent>
+          <div className="flex items-center justify-center w-full h-full">
+            <p>Error: {error.message}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -143,9 +194,6 @@ export function CommentModeration() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            {/* <Button variant="outline" size="sm" className="whitespace-nowrap">
-              Bulk Actions
-            </Button> */}
             <Select onValueChange={setSelectedPost}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select a post" />
@@ -153,11 +201,14 @@ export function CommentModeration() {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Select a post</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                  {posts.map((post, index) => (
+                    <SelectItem
+                      key={post.videoId + "-" + index}
+                      value={post.title}
+                    >
+                      {post.title}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -180,6 +231,7 @@ export function CommentModeration() {
                   />
                 </TableHead>
                 <TableHead>Executed at</TableHead>
+                <TableHead>Author</TableHead>
                 <TableHead>Comment</TableHead>
                 <TableHead className="hidden sm:table-cell w-[100px]">
                   Sentiment
@@ -211,6 +263,7 @@ export function CommentModeration() {
                         minute: "2-digit",
                       })}
                     </TableCell>
+                    <TableCell>Falif</TableCell>
                     <TableCell
                       className="font-medium max-w-[150px] sm:max-w-[200px] truncate"
                       title={comment.text}
@@ -229,7 +282,22 @@ export function CommentModeration() {
                           {comment.sentiment[0]}
                         </Badge>
                       </div>
-                      {comment.text}
+                      <HoverCard>
+                        <HoverCardTrigger className="cursor-pointer">
+                          {comment.text}
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-80">
+                          <div className="flex justify-between space-x-4">
+                            <div className="space-y-1">
+                              <h4 className="text-sm font-semibold">Falif</h4>
+                              <p className="text-sm text-muted-foreground">
+                                24/10/2023, 10:30 AM
+                              </p>
+                              <p className="text-sm">{comment.text}</p>
+                            </div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <Badge
@@ -248,7 +316,23 @@ export function CommentModeration() {
                       className="hidden lg:table-cell max-w-[200px] truncate"
                       title={comment.suggestedReply}
                     >
-                      {comment.suggestedReply}
+                      <HoverCard>
+                        <HoverCardTrigger className="cursor-pointer">
+                          {comment.suggestedReply}
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-80">
+                          <div className="flex justify-between space-x-4">
+                            <div className="space-y-1">
+                              <h4 className="text-sm font-semibold">
+                                Suggested reply
+                              </h4>
+                              <p className="text-sm">
+                                {comment.suggestedReply}
+                              </p>
+                            </div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
                     </TableCell>
                     <TableCell>
                       <Badge

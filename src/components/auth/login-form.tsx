@@ -42,6 +42,7 @@ export function LoginForm({
   };
 
   const handleGoogleLogin = async () => {
+    // window.location.href = `${process.env.NEXT_PUBLIC_AKMAL_API_URL}/auth`;
     const supabase = createClient();
 
     await supabase.auth.signInWithOAuth({
