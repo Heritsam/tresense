@@ -118,8 +118,10 @@ export function IndividualPosts() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem>
-                          Run Sentiment Analysis
+                        <DropdownMenuItem asChild>
+                          <Link href="https://storage.googleapis.com/tresense_bucket/emotion_plot.png">
+                            Run Sentiment Analysis
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href="https://storage.googleapis.com/tresense_bucket/interactive_plot.html">
